@@ -6,6 +6,10 @@ import RichChatMessage from '../components/RichChatMessage'
 import ConversionOptimizer from '../components/ConversionOptimizer'
 import MobileOptimized from '../components/MobileOptimized'
 import { SkeletonChat, SkeletonCarGrid } from '../components/SkeletonLoader'
+import SocialFeatures from '../components/SocialFeatures'
+import AnalyticsInsights from '../components/AnalyticsInsights'
+import PremiumFeatures from '../components/PremiumFeatures'
+import EcosystemIntegration from '../components/EcosystemIntegration'
 
 const DemoContainer = styled.div`
   min-height: 100vh;
@@ -55,6 +59,10 @@ function Demo() {
   const [showConversion, setShowConversion] = useState(false)
   const [showMobile, setShowMobile] = useState(false)
   const [showSkeletons, setShowSkeletons] = useState(false)
+  const [showSocial, setShowSocial] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showPremium, setShowPremium] = useState(false)
+  const [showEcosystem, setShowEcosystem] = useState(false)
 
   const mockUserPreferences = {
     budget: 50000,
@@ -202,6 +210,71 @@ function Demo() {
             onSavePreferences={(car) => console.log('Saving preferences:', car)}
             onScheduleTestDrive={(car) => console.log('Scheduling test drive:', car)}
             onGetFinancing={(car) => console.log('Getting financing:', car)}
+          />
+        )}
+      </Section>
+
+      <Section>
+        <SectionTitle>👥 7. Social & Community Features</SectionTitle>
+        <p style={{ color: '#b0b0b0', marginBottom: '1rem' }}>
+          User reviews, expert tips, community stats, and social sharing to build trust and engagement.
+        </p>
+        <DemoButton onClick={() => setShowSocial(!showSocial)}>
+          {showSocial ? 'Hide' : 'Show'} Social Features
+        </DemoButton>
+        {showSocial && (
+          <SocialFeatures 
+            car={mockCar}
+            userLocation="San Francisco, CA"
+          />
+        )}
+      </Section>
+
+      <Section>
+        <SectionTitle>📊 8. Advanced Analytics & Insights</SectionTitle>
+        <p style={{ color: '#b0b0b0', marginBottom: '1rem' }}>
+          Market intelligence, AI predictions, price history, and personalized insights.
+        </p>
+        <DemoButton onClick={() => setShowAnalytics(!showAnalytics)}>
+          {showAnalytics ? 'Hide' : 'Show'} Analytics
+        </DemoButton>
+        {showAnalytics && (
+          <AnalyticsInsights 
+            userPreferences={mockUserPreferences}
+            location="San Francisco, CA"
+            selectedCar={mockCar}
+          />
+        )}
+      </Section>
+
+      <Section>
+        <SectionTitle>💎 9. Premium Features & Monetization</SectionTitle>
+        <p style={{ color: '#b0b0b0', marginBottom: '1rem' }}>
+          Subscription tiers, exclusive features, and premium services to drive revenue.
+        </p>
+        <DemoButton onClick={() => setShowPremium(!showPremium)}>
+          {showPremium ? 'Hide' : 'Show'} Premium Features
+        </DemoButton>
+        {showPremium && (
+          <PremiumFeatures 
+            userTier="free"
+            onUpgrade={(plan) => console.log('Upgrading to:', plan)}
+          />
+        )}
+      </Section>
+
+      <Section>
+        <SectionTitle>🔗 10. Ecosystem Integration</SectionTitle>
+        <p style={{ color: '#b0b0b0', marginBottom: '1rem' }}>
+          Connect with external services for financing, insurance, calendar, and maintenance tracking.
+        </p>
+        <DemoButton onClick={() => setShowEcosystem(!showEcosystem)}>
+          {showEcosystem ? 'Hide' : 'Show'} Ecosystem
+        </DemoButton>
+        {showEcosystem && (
+          <EcosystemIntegration 
+            userPreferences={mockUserPreferences}
+            selectedCar={mockCar}
           />
         )}
       </Section>
