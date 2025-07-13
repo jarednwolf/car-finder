@@ -6,7 +6,8 @@ from sqlalchemy import (
     Column, String, Text, Boolean, Integer, Float, DateTime, JSON,
     ForeignKey, UniqueConstraint, Index, text
 )
-from sqlalchemy.dialects.postgresql import UUID, VECTOR
+# For SQLite compatibility, we'll use String for UUID and JSON for VECTOR
+import uuid
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
 from enum import Enum
@@ -53,7 +54,7 @@ class User(Base):
     """User model."""
     __tablename__ = "users"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     settings = Column(JSON, default={})
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -68,8 +69,8 @@ class Conversation(Base):
     """Conversation model."""
     __tablename__ = "conversations"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     ended_at = Column(DateTime, nullable=True)
     
@@ -82,8 +83,8 @@ class Message(Base):
     """Message model."""
     __tablename__ = "messages"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    conversation_id = Column(String(36), ForeignKey("conversations.id"), nullable=False, index=True)
     from_user = Column(Boolean, nullable=False)
     content = Column(Text, nullable=False)
     ts = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
@@ -96,20 +97,16 @@ class Preference(Base):
     """User preference model."""
     __tablename__ = "preferences"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     car_pref = Column(JSON, nullable=False)  # CarPreference JSON
-    embedding = Column(VECTOR(1536), nullable=True)  # OpenAI ada-002 embeddings
+    embedding = Column(JSON, nullable=True)  # OpenAI ada-002 embeddings (stored as JSON for SQLite)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     
     # Relationships
     user = relationship("User", back_populates="preferences")
     alerts = relationship("Alert", back_populates="preference", cascade="all, delete-orphan")
-    
-    __table_args__ = (
-        Index('idx_preference_embedding', 'embedding', postgresql_using='ivfflat'),
-    )
 
 
 class Listing(Base):
@@ -119,7 +116,7 @@ class Listing(Base):
     vin = Column(String(17), primary_key=True)
     source = Column(String(50), nullable=False)  # marketcheck, autodev, etc.
     attrs = Column(JSON, nullable=False)  # Full listing data
-    embedding = Column(VECTOR(1536), nullable=True)  # Embedding of description + options
+    embedding = Column(JSON, nullable=True)  # Embedding of description + options (stored as JSON for SQLite)
     decoded_at = Column(DateTime, nullable=True)  # When VIN was decoded
     enriched_at = Column(DateTime, nullable=True)  # When options were enriched
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -129,7 +126,6 @@ class Listing(Base):
     alerts = relationship("Alert", back_populates="listing")
     
     __table_args__ = (
-        Index('idx_listing_embedding', 'embedding', postgresql_using='ivfflat'),
         Index('idx_listing_created', 'created_at'),
     )
 
@@ -138,8 +134,8 @@ class Alert(Base):
     """Alert model for matching listings to preferences."""
     __tablename__ = "alerts"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    preference_id = Column(UUID(as_uuid=True), ForeignKey("preferences.id"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    preference_id = Column(String(36), ForeignKey("preferences.id"), nullable=False, index=True)
     vin = Column(String(17), ForeignKey("listings.vin"), nullable=False, index=True)
     similarity_score = Column(Float, nullable=False)
     sent_at = Column(DateTime, nullable=True)
