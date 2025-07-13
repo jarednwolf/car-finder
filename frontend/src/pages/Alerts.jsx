@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import styled from '@emotion/styled'
 import axios from 'axios'
+import { SkeletonAlerts } from '../components/SkeletonLoader'
+import ConversionOptimizer from '../components/ConversionOptimizer'
 
 const AlertsContainer = styled.div`
   max-width: 1200px;
@@ -182,9 +184,7 @@ function Alerts() {
   if (loading) {
     return (
       <AlertsContainer>
-        <LoadingState>
-          <div>Loading your alerts...</div>
-        </LoadingState>
+        <SkeletonAlerts />
       </AlertsContainer>
     )
   }

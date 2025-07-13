@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { keyframes } from '@emotion/react'
+import Onboarding from '../components/Onboarding'
+import ConversionOptimizer from '../components/ConversionOptimizer'
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -242,6 +244,7 @@ const ScrollIndicator = styled.div`
 
 function Landing() {
   const navigate = useNavigate()
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   const handleStart = () => {
     navigate('/chat')
@@ -250,10 +253,35 @@ function Landing() {
   const handleQuickFilter = (filter) => {
     navigate('/chat', { state: { initialMessage: filter } })
   }
+  
+  const handleSavePreferences = (car) => {
+    console.log('Saving preferences for:', car)
+    // Add preference saving logic
+  }
+  
+  const handleScheduleTestDrive = (car) => {
+    console.log('Scheduling test drive for:', car)
+    // Add test drive scheduling logic
+  }
+  
+  const handleGetFinancing = (car) => {
+    console.log('Getting financing for:', car)
+    // Add financing logic
+  }
 
   return (
-    <Container>
-      <HeroSection>
+    <>
+      {/* Onboarding Overlay */}
+      <Onboarding 
+        isVisible={showOnboarding}
+        onComplete={() => setShowOnboarding(false)}
+        onSkip={() => setShowOnboarding(false)}
+        currentStep={0}
+        userAchievements={[]}
+      />
+      
+      <Container>
+        <HeroSection>
         <HeroContent>
           <Headline>
             The Art of
@@ -319,6 +347,7 @@ function Landing() {
         </FeaturesContainer>
       </FeaturesSection>
     </Container>
+    </>
   )
 }
 
