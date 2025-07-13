@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import styled, { keyframes } from '@emotion/styled'
+import styled from '@emotion/styled'
+import { keyframes } from '@emotion/react'
 import axios from 'axios'
 
 const pulse = keyframes`
