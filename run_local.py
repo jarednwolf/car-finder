@@ -3,6 +3,7 @@
 import os
 os.environ['DATABASE_URL'] = 'sqlite+aiosqlite:///./carfinder.db'
 os.environ['REDIS_URL'] = 'redis://localhost:6379/0'
+os.environ['OPENAI_API_KEY'] = 'sk-demo-key-for-testing'  # Demo key for testing
 
 # Load .env file
 from pathlib import Path

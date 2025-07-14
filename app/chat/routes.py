@@ -1,7 +1,7 @@
 """Chat routes for OpenAI integration."""
 import json
 import logging
-from typing import Optional, AsyncGenerator
+from typing import Optional, AsyncGenerator, Union
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -30,19 +30,19 @@ client = AsyncOpenAI(api_key=settings.openai_api_key)
 class ChatRequest(BaseModel):
     """Chat request model."""
     message: str
-    user_id: Optional[UUID] = None
-    conversation_id: Optional[UUID] = None
+    user_id: Optional[Union[UUID, str]] = None
+    conversation_id: Optional[Union[UUID, str]] = None
 
 
 class ChatResponse(BaseModel):
     """Chat response model."""
-    conversation_id: UUID
-    message_id: UUID
+    conversation_id: Union[UUID, str]
+    message_id: Union[UUID, str]
 
 
 async def get_or_create_user(
     db: AsyncSession,
-    user_id: Optional[UUID] = None,
+    user_id: Optional[Union[UUID, str]] = None,
     email: Optional[str] = None
 ) -> User:
     """Get existing user or create a new one."""
@@ -65,7 +65,7 @@ async def get_or_create_user(
 async def get_or_create_conversation(
     db: AsyncSession,
     user: User,
-    conversation_id: Optional[UUID] = None
+    conversation_id: Optional[Union[UUID, str]] = None
 ) -> Conversation:
     """Get existing conversation or create a new one."""
     if conversation_id:
@@ -279,7 +279,7 @@ async def chat(
 
 @router.get("/history/{conversation_id}")
 async def get_chat_history(
-    conversation_id: UUID,
+    conversation_id: Union[UUID, str],
     db: AsyncSession = Depends(get_db)
 ) -> list[dict]:
     """Get chat history for a conversation."""
