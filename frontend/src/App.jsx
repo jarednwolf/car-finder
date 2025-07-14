@@ -4,6 +4,7 @@ import styled from '@emotion/styled'
 import Landing from './pages/Landing'
 import Chat from './pages/Chat'
 import Alerts from './pages/Alerts'
+import Demo from './pages/Demo'
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -106,6 +107,14 @@ function Navigation() {
             My Alerts
           </Link>
         </NavItem>
+        <NavItem>
+          <Link 
+            to="/demo" 
+            className={location.pathname === '/demo' ? 'active' : ''}
+          >
+            Demo
+          </Link>
+        </NavItem>
       </NavList>
     </Nav>
   )
@@ -124,6 +133,7 @@ function AppContent() {
           <Route path="/" element={<Landing />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/demo" element={<Demo />} />
         </Routes>
       </ContentWrapper>
     </AppContainer>

@@ -3,6 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import styled from '@emotion/styled'
 import { keyframes } from '@emotion/react'
 import axios from 'axios'
+import RichChatMessage from '../components/RichChatMessage'
+import SmartRecommendations from '../components/SmartRecommendations'
+import Onboarding from '../components/Onboarding'
+import { SkeletonChat, LoadingDots } from '../components/SkeletonLoader'
 
 const pulse = keyframes`
   0%, 100% { opacity: 0.6; }
@@ -375,6 +379,9 @@ function Chat() {
     features: false,
     saved: false
   })
+  const [showOnboarding, setShowOnboarding] = useState(true)
+  const [userPreferences, setUserPreferences] = useState({})
+  const [browsingHistory, setBrowsingHistory] = useState([])
   const messagesEndRef = useRef(null)
   
   const conversationStarters = [
@@ -423,6 +430,13 @@ function Chat() {
     setMessages(prev => [...prev, userMessage])
     if (!messageOverride) setInput('')
     setIsLoading(true)
+    
+    // Track user behavior for recommendations
+    setBrowsingHistory(prev => [...prev, {
+      action: 'message',
+      content: messageToSend,
+      timestamp: Date.now()
+    }])
 
     // Update progress based on message content
     if (messageToSend.toLowerCase().includes('suv') || messageToSend.toLowerCase().includes('sedan')) {
@@ -491,6 +505,23 @@ function Chat() {
                   ))
                 }
                 
+                // Handle rich content from AI
+                if (parsed.cars) {
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === assistantMessageId 
+                      ? { ...msg, cars: parsed.cars }
+                      : msg
+                  ))
+                }
+                
+                if (parsed.comparison) {
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === assistantMessageId 
+                      ? { ...msg, comparison: parsed.comparison }
+                      : msg
+                  ))
+                }
+                
                 if (parsed.event === 'preferences_saved') {
                   setProgress(prev => ({ ...prev, saved: true }))
                 }
@@ -524,8 +555,18 @@ function Chat() {
   }
 
   return (
-    <ChatContainer>
-      <ChatHeader>
+    <>
+      {/* Onboarding Overlay */}
+      <Onboarding 
+        isVisible={showOnboarding}
+        onComplete={() => setShowOnboarding(false)}
+        onSkip={() => setShowOnboarding(false)}
+        currentStep={0}
+        userAchievements={[]}
+      />
+      
+      <ChatContainer>
+        <ChatHeader>
         <BackButton onClick={() => navigate('/')}>
           ← Back to Home
         </BackButton>
@@ -560,7 +601,17 @@ function Chat() {
                       {message.fromUser ? '👤' : '🤖'}
                     </MessageAvatar>
                     <MessageContent fromUser={message.fromUser}>
-                      {message.content || <LoadingDots>Thinking</LoadingDots>}
+                      {message.fromUser ? (
+                        message.content
+                      ) : (
+                        <RichChatMessage 
+                          message={message} 
+                          onAction={(action, data) => {
+                            console.log('Chat action:', action, data)
+                            // Handle rich message actions
+                          }}
+                        />
+                      )}
                     </MessageContent>
                   </Message>
                 ))}
@@ -568,6 +619,17 @@ function Chat() {
               </>
             )}
           </MessagesContainer>
+          
+          {/* Smart Recommendations */}
+          {messages.length > 2 && (
+            <div style={{ padding: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <SmartRecommendations 
+                userPreferences={userPreferences}
+                browsingHistory={browsingHistory}
+                location="auto"
+              />
+            </div>
+          )}
           
           <InputArea onSubmit={handleSubmit}>
             <Input
@@ -640,6 +702,7 @@ function Chat() {
         </SidePanel>
       </ChatMain>
     </ChatContainer>
+    </>
   )
 }
 
